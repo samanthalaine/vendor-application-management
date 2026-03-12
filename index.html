@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vendor Application Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Event Management</p>
+          <h1>Vendor Application Management</h1>
+          <p class="subtext">
+            Review, search, and manage vendor submissions for upcoming events.
+          </p>
+        </div>
+      </header>
+
+      <section class="toolbar" aria-label="Vendor application controls">
+        <div class="search-group">
+          <label for="searchInput" class="sr-only"
+            >Search vendor applications</label
+          >
+
+          <div class="search-input-wrapper">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search by business, name, tag, etc"
+              autocomplete="off"
+            />
+
+            <button
+              id="clearSearch"
+              class="clear-search-btn hidden"
+              type="button"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-wrap">
+          <button
+            id="filterToggle"
+            class="filter-btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="filterPanel"
+            aria-haspopup="dialog"
+          >
+            <span class="filter-btn-left">
+              <span class="filter-icon" aria-hidden="true">☷</span>
+              <span>Filter</span>
+            </span>
+            <span id="filterChevron" class="filter-chevron" aria-hidden="true"
+              >⌄</span
+            >
+          </button>
+
+          <div
+            id="filterPanel"
+            class="filter-panel hidden"
+            role="dialog"
+            aria-modal="false"
+            aria-label="Advanced filters"
+          >
+            <div class="filter-panel-inner" tabindex="-1">
+              <div class="mobile-filter-header">
+                <h2 class="mobile-filter-title">Filters</h2>
+                <button
+                  id="closeFilterPanel"
+                  type="button"
+                  class="icon-btn"
+                  aria-label="Close filters"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div class="filter-field">
+                <label for="applicationType" class="sr-only"
+                  >Application type</label
+                >
+                <select id="applicationType" class="filter-select">
+                  <option value="">All applications</option>
+                  <option value="reviewed">Reviewed applications</option>
+                  <option value="submitted">Submitted applications</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <p class="filter-group-title">Status</p>
+
+                <div class="checkbox-grid">
+                  <label class="checkbox-item">
+                    <input
+                      type="checkbox"
+                      class="status-checkbox"
+                      value="Approved"
+                    />
+                    <span>Approved</span>
+                  </label>
+
+                  <label class="checkbox-item">
+                    <input
+                      type="checkbox"
+                      class="status-checkbox"
+                      value="Awaiting"
+                    />
+                    <span>Awaiting</span>
+                  </label>
+
+                  <label class="checkbox-item">
+                    <input
+                      type="checkbox"
+                      class="status-checkbox"
+                      value="Waitlisted"
+                    />
+                    <span>Waitlisted</span>
+                  </label>
+
+                  <label class="checkbox-item">
+                    <input
+                      type="checkbox"
+                      class="status-checkbox"
+                      value="Rejected"
+                    />
+                    <span>Rejected</span>
+                  </label>
+
+                  <label class="checkbox-item">
+                    <input
+                      type="checkbox"
+                      class="status-checkbox"
+                      value="Withdrawn"
+                    />
+                    <span>Withdrawn</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <p class="filter-group-title">Payment status</p>
+
+                <div class="checkbox-grid">
+                  <label class="checkbox-item">
+                    <input
+                      type="checkbox"
+                      class="payment-checkbox"
+                      value="Paid"
+                    />
+                    <span>Paid</span>
+                  </label>
+
+                  <label class="checkbox-item">
+                    <input
+                      type="checkbox"
+                      class="payment-checkbox"
+                      value="Not paid"
+                    />
+                    <span>Not paid</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-card" aria-label="Vendor applications table">
+        <div class="table-header">
+          <h2>Applications</h2>
+          <p id="resultsCount" class="muted-text"></p>
+        </div>
+
+        <div class="table-wrapper desktop-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Vendor</th>
+                <th>Event</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="applicationTableBody"></tbody>
+          </table>
+        </div>
+
+        <div id="mobileCards" class="mobile-cards"></div>
+      </section>
+    </main>
+
+    <div
+      id="detailsModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Vendor Details</h2>
+          <button
+            id="closeModal"
+            class="icon-btn"
+            aria-label="Close details panel"
+          >
+            ×
+          </button>
+        </div>
+        <div id="modalBody" class="modal-body"></div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
