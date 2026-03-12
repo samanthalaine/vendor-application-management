@@ -4,55 +4,6 @@ let sortDirection = "asc";
 let isLoading = true;
 
 /* -----------------------------
-   Filter panel helpers
------------------------------ */
-
-function isMobileFilters() {
-  return window.innerWidth <= 480;
-}
-
-function closeFilterPanel(returnFocus = true) {
-  $("#filterPanel").addClass("hidden");
-  $("#filterToggle")
-    .attr("aria-expanded", "false")
-    .removeClass("is-open");
-  $("#filterChevron").text("⌄");
-
-  if (isMobileFilters()) {
-    $("body").css("overflow", "");
-    $("#filterPanel").attr("aria-modal", "false");
-  }
-
-  if (returnFocus) {
-    $("#filterToggle").focus();
-  }
-}
-
-function openFilterPanel() {
-  $("#filterPanel").removeClass("hidden");
-  $("#filterToggle")
-    .attr("aria-expanded", "true")
-    .addClass("is-open");
-  $("#filterChevron").text("⌃");
-
-  if (isMobileFilters()) {
-    $("body").css("overflow", "hidden");
-    $("#filterPanel").attr("aria-modal", "true");
-  }
-
-  const firstFocusable = $("#filterPanel")
-    .find('select, input[type="checkbox"], button')
-    .filter(":visible")
-    .first();
-
-  if (firstFocusable.length) {
-    firstFocusable.focus();
-  } else {
-    $(".filter-panel-inner").focus();
-  }
-}
-
-/* -----------------------------
    Bulk action / loading helpers
 ----------------------------- */
 
@@ -229,6 +180,7 @@ function renderTable(data) {
     .join("");
 
   $("#mobileCards").html(mobileCards);
+
   $("#resultsCount").text(
     `${sortedData.length} result${sortedData.length === 1 ? "" : "s"}`
   );
@@ -242,19 +194,8 @@ function renderTable(data) {
 
 function applyFilters() {
   const searchValue = getSearchValue();
-  const applicationType = $("#applicationType").val();
-
-  const selectedStatuses = $(".status-checkbox:checked")
-    .map(function () {
-      return $(this).val();
-    })
-    .get();
-
-  const selectedPaymentStatuses = $(".payment-checkbox:checked")
-    .map(function () {
-      return $(this).val();
-    })
-    .get();
+  const { applicationType, selectedStatuses, selectedPaymentStatuses } =
+    getFilterValues();
 
   filteredApplications = applications.filter((app) => {
     const matchesSearch =
@@ -300,79 +241,14 @@ function applyFilters() {
 $(document).ready(function () {
   renderTable(filteredApplications);
   updateClearButton();
+
   initSearch(applyFilters);
+  initFilters(applyFilters);
 
   setTimeout(() => {
     isLoading = false;
     renderTable(filteredApplications);
   }, 700);
-
-  $("#filterToggle").on("click", function () {
-    const isExpanded = $(this).attr("aria-expanded") === "true";
-
-    if (isExpanded) {
-      closeFilterPanel(false);
-    } else {
-      openFilterPanel();
-    }
-  });
-
-  $("#closeFilterPanel").on("click", function () {
-    closeFilterPanel();
-  });
-
-  $("#applicationType").on("change", function () {
-    applyFilters();
-  });
-
-  $(document).on("change", ".status-checkbox, .payment-checkbox", function () {
-    applyFilters();
-  });
-
-  $("#clearFilters").on("click", function () {
-    $("#applicationType").val("");
-    $(".status-checkbox").prop("checked", false);
-    $(".payment-checkbox").prop("checked", false);
-    applyFilters();
-  });
-
-  $(document).on("mousedown", function (event) {
-    const panelIsOpen = !$("#filterPanel").hasClass("hidden");
-    const clickedInsidePanel =
-      $(event.target).closest("#filterPanel").length > 0;
-    const clickedToggle =
-      $(event.target).closest("#filterToggle").length > 0;
-
-    if (panelIsOpen && !clickedInsidePanel && !clickedToggle) {
-      closeFilterPanel(false);
-    }
-  });
-
-  $("#filterPanel").on("keydown", function (event) {
-    if (event.key === "Escape") {
-      closeFilterPanel();
-      return;
-    }
-
-    if (event.key !== "Tab") return;
-
-    const focusable = $("#filterPanel")
-      .find('select, input[type="checkbox"], button')
-      .filter(":visible");
-
-    if (!focusable.length) return;
-
-    const first = focusable.first()[0];
-    const last = focusable.last()[0];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  });
 
   $("#sortBusinessBtn").on("click", function () {
     sortDirection = sortDirection === "asc" ? "desc" : "asc";
@@ -428,21 +304,6 @@ $(document).ready(function () {
     if (item) {
       item.status = newStatus;
       applyFilters();
-    }
-  });
-
-  $(document).on("keydown", function (event) {
-    if (event.key === "Escape" && !$("#filterPanel").hasClass("hidden")) {
-      closeFilterPanel(false);
-    }
-  });
-
-  $(window).on("resize", function () {
-    if ($("#filterPanel").hasClass("hidden")) {
-      $("body").css("overflow", "");
-    } else if (!isMobileFilters()) {
-      $("body").css("overflow", "");
-      $("#filterPanel").attr("aria-modal", "false");
     }
   });
 });
