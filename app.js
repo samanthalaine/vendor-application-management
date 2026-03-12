@@ -1,84 +1,21 @@
-
 let filteredApplications = [...applications];
 let selectedRowIds = [];
 let sortDirection = "asc";
 let isLoading = true;
 
 /* -----------------------------
-   Helpers
+   Filter panel helpers
 ----------------------------- */
-
-function debounce(fn, delay = 300) {
-  let timeoutId;
-
-  return function (...args) {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      fn.apply(this, args);
-    }, delay);
-  };
-}
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function getInitials(name) {
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
-function updateClearButton() {
-  const hasText = $("#searchInput").val().trim().length > 0;
-  $("#clearSearch").toggleClass("hidden", !hasText);
-}
 
 function isMobileFilters() {
   return window.innerWidth <= 480;
 }
 
-function getStatusClass(status) {
-  switch (status) {
-    case "Approved":
-      return "status-approved";
-    case "Waitlisted":
-      return "status-waitlisted";
-    case "Rejected":
-      return "status-rejected";
-    default:
-      return "status-awaiting";
-  }
-}
-
-function sortApplications(data) {
-  return [...data].sort((a, b) => {
-    const nameA = a.vendor.toLowerCase();
-    const nameB = b.vendor.toLowerCase();
-
-    if (sortDirection === "asc") {
-      return nameA.localeCompare(nameB);
-    }
-
-    return nameB.localeCompare(nameA);
-  });
-}
-
-/* -----------------------------
-   Filter panel helpers
------------------------------ */
-
 function closeFilterPanel(returnFocus = true) {
   $("#filterPanel").addClass("hidden");
-  $("#filterToggle").attr("aria-expanded", "false").removeClass("is-open");
+  $("#filterToggle")
+    .attr("aria-expanded", "false")
+    .removeClass("is-open");
   $("#filterChevron").text("⌄");
 
   if (isMobileFilters()) {
@@ -93,7 +30,9 @@ function closeFilterPanel(returnFocus = true) {
 
 function openFilterPanel() {
   $("#filterPanel").removeClass("hidden");
-  $("#filterToggle").attr("aria-expanded", "true").addClass("is-open");
+  $("#filterToggle")
+    .attr("aria-expanded", "true")
+    .addClass("is-open");
   $("#filterChevron").text("⌃");
 
   if (isMobileFilters()) {
@@ -187,7 +126,7 @@ function renderTable(data) {
     return;
   }
 
-  const sortedData = sortApplications(data);
+  const sortedData = sortApplications(data, sortDirection);
 
   const rows = sortedData
     .map(
@@ -244,15 +183,15 @@ function renderTable(data) {
 
         <td>
           <button
-            class="menu-btn view-btn"
-            data-id="${app.id}"
-            aria-label="View actions for ${app.vendor}"
+            class="menu-btn"
+            type="button"
+            aria-label="More actions for ${app.vendor}"
           >
             •••
           </button>
         </td>
       </tr>
-    `,
+    `
     )
     .join("");
 
@@ -272,26 +211,28 @@ function renderTable(data) {
           />
           <h3>${app.vendor}</h3>
         </div>
+
         <p class="mobile-meta">${app.applicantName}</p>
         <p class="mobile-meta"><strong>Application:</strong> ${app.applicationName}</p>
         <p class="mobile-meta"><strong>Payment:</strong> ${app.paymentStatus}</p>
         <p class="mobile-meta"><strong>Status:</strong> ${app.status}</p>
         <p class="mobile-meta"><strong>Date:</strong> ${formatDate(app.submitted)}</p>
+
         <div class="tag-list mobile-tag-list">
-          ${app.tags.map((tag) => `<span class="tag-pill">${tag}</span>`).join("")}
-        </div>
-        <div class="row-actions">
-          <button class="action-btn view-btn" data-id="${app.id}">View</button>
+          ${app.tags
+            .map((tag) => `<span class="tag-pill">${tag}</span>`)
+            .join("")}
         </div>
       </article>
-    `,
+    `
     )
     .join("");
 
   $("#mobileCards").html(mobileCards);
   $("#resultsCount").text(
-    `${sortedData.length} result${sortedData.length === 1 ? "" : "s"}`,
+    `${sortedData.length} result${sortedData.length === 1 ? "" : "s"}`
   );
+
   renderBulkActionBar();
 }
 
@@ -300,7 +241,7 @@ function renderTable(data) {
 ----------------------------- */
 
 function applyFilters() {
-  const searchValue = $("#searchInput").val().trim().toLowerCase();
+  const searchValue = getSearchValue();
   const applicationType = $("#applicationType").val();
 
   const selectedStatuses = $(".status-checkbox:checked")
@@ -346,15 +287,11 @@ function applyFilters() {
   });
 
   selectedRowIds = selectedRowIds.filter((id) =>
-    filteredApplications.some((app) => app.id === id),
+    filteredApplications.some((app) => app.id === id)
   );
 
   renderTable(filteredApplications);
 }
-
-const debouncedApplyFilters = debounce(function () {
-  applyFilters();
-}, 250);
 
 /* -----------------------------
    Event bindings
@@ -363,23 +300,12 @@ const debouncedApplyFilters = debounce(function () {
 $(document).ready(function () {
   renderTable(filteredApplications);
   updateClearButton();
+  initSearch(applyFilters);
 
   setTimeout(() => {
     isLoading = false;
     renderTable(filteredApplications);
   }, 700);
-
-  $("#searchInput").on("input", function () {
-    updateClearButton();
-    debouncedApplyFilters();
-  });
-
-  $("#clearSearch").on("click", function () {
-    $("#searchInput").val("");
-    updateClearButton();
-    applyFilters();
-    $("#searchInput").focus();
-  });
 
   $("#filterToggle").on("click", function () {
     const isExpanded = $(this).attr("aria-expanded") === "true";
@@ -414,7 +340,8 @@ $(document).ready(function () {
     const panelIsOpen = !$("#filterPanel").hasClass("hidden");
     const clickedInsidePanel =
       $(event.target).closest("#filterPanel").length > 0;
-    const clickedToggle = $(event.target).closest("#filterToggle").length > 0;
+    const clickedToggle =
+      $(event.target).closest("#filterToggle").length > 0;
 
     if (panelIsOpen && !clickedInsidePanel && !clickedToggle) {
       closeFilterPanel(false);
@@ -493,10 +420,6 @@ $(document).ready(function () {
     applyFilters();
   });
 
-  $(document).on("click", ".view-btn", function () {
-    openModal($(this).data("id"));
-  });
-
   $(document).on("change", ".status-select", function () {
     const id = Number($(this).data("id"));
     const newStatus = $(this).val();
@@ -508,15 +431,9 @@ $(document).ready(function () {
     }
   });
 
-  $("#closeModal").on("click", closeModal);
-
   $(document).on("keydown", function (event) {
-    if (event.key === "Escape") {
-      closeModal();
-
-      if (!$("#filterPanel").hasClass("hidden")) {
-        closeFilterPanel(false);
-      }
+    if (event.key === "Escape" && !$("#filterPanel").hasClass("hidden")) {
+      closeFilterPanel(false);
     }
   });
 
