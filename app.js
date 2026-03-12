@@ -2,66 +2,109 @@ const applications = [
   {
     id: 1,
     vendor: "Oak & Honey Bakery",
-    email: "hello@oakhoney.com",
-    event: "Spring Market",
-    category: "Food",
-    status: "Awaiting",
+    applicantName: "Emma Sullivan",
+    tags: ["Food Vendor", "Bakery", "Local"],
+    applicationName: "Spring Artisan Market",
     paymentStatus: "Paid",
-    submitted: "2026-02-03",
+    status: "Awaiting decision",
+    submitted: "2026-01-18",
   },
   {
     id: 2,
-    vendor: "Blue Fern Studio",
-    email: "team@bluefern.com",
-    event: "Summer Festival",
-    category: "Art",
-    status: "Approved",
+    vendor: "Blue Fern Pottery",
+    applicantName: "Marcus Delgado",
+    tags: ["Handmade", "Ceramics", "Artisan"],
+    applicationName: "Downtown Makers Festival",
     paymentStatus: "Paid",
-    submitted: "2026-02-02",
+    status: "Approved",
+    submitted: "2026-01-17",
   },
   {
     id: 3,
-    vendor: "North Market Goods",
-    email: "sales@northmarket.com",
-    event: "Holiday Expo",
-    category: "Retail",
+    vendor: "Evergreen Candle Co.",
+    applicantName: "Sophia Chen",
+    tags: ["Home Goods", "Handmade", "Eco-Friendly"],
+    applicationName: "Holiday Gift Expo",
+    paymentStatus: "Paid",
     status: "Waitlisted",
-    paymentStatus: "Not paid",
-    submitted: "2026-01-28",
+    submitted: "2026-01-16",
   },
   {
     id: 4,
-    vendor: "Spark Event Services",
-    email: "contact@sparkevents.com",
-    event: "Spring Market",
-    category: "Services",
-    status: "Rejected",
-    paymentStatus: "Not paid",
-    submitted: "2026-01-25",
+    vendor: "North Market Coffee",
+    applicantName: "Daniel Carter",
+    tags: ["Food Vendor", "Coffee", "Local"],
+    applicationName: "Spring Artisan Market",
+    paymentStatus: "Paid",
+    status: "Approved",
+    submitted: "2026-01-15",
   },
   {
     id: 5,
-    vendor: "Golden Skillet",
-    email: "info@goldenskillet.com",
-    event: "Summer Festival",
-    category: "Food",
-    status: "Approved",
-    paymentStatus: "Paid",
-    submitted: "2026-02-01",
+    vendor: "Golden Meadow Soapworks",
+    applicantName: "Hannah Brooks",
+    tags: ["Bath & Body", "Handmade", "Organic"],
+    applicationName: "Downtown Makers Festival",
+    paymentStatus: "Not Paid",
+    status: "Rejected",
+    submitted: "2026-01-14",
   },
   {
     id: 6,
-    vendor: "Fern & Thread",
-    email: "hi@fernthread.com",
-    event: "Holiday Expo",
-    category: "Retail",
-    status: "Withdrawn",
-    paymentStatus: "Not paid",
-    submitted: "2026-01-20",
+    vendor: "Riverbend Leather",
+    applicantName: "Lucas Ramirez",
+    tags: ["Leather Goods", "Handcrafted", "Accessories"],
+    applicationName: "Fall Craft Fair",
+    paymentStatus: "Paid",
+    status: "Awaiting decision",
+    submitted: "2026-01-13",
+  },
+  {
+    id: 7,
+    vendor: "Bloom & Branch Floral",
+    applicantName: "Isabella Torres",
+    tags: ["Florals", "Decor", "Local"],
+    applicationName: "Spring Garden Festival",
+    paymentStatus: "Paid",
+    status: "Approved",
+    submitted: "2026-01-12",
+  },
+  {
+    id: 8,
+    vendor: "Copper Kettle Caramels",
+    applicantName: "Nathan Gallagher",
+    tags: ["Food Vendor", "Sweets", "Small Batch"],
+    applicationName: "Holiday Gift Expo",
+    paymentStatus: "Not Paid",
+    status: "Awaiting decision",
+    submitted: "2026-01-11",
+  },
+  {
+    id: 9,
+    vendor: "Willow Lane Textiles",
+    applicantName: "Olivia Patel",
+    tags: ["Textiles", "Handmade", "Sustainable"],
+    applicationName: "Downtown Makers Festival",
+    paymentStatus: "Paid",
+    status: "Waitlisted",
+    submitted: "2026-01-10",
+  },
+  {
+    id: 10,
+    vendor: "Maple Street Woodworks",
+    applicantName: "Ethan Walker",
+    tags: ["Woodworking", "Furniture", "Handcrafted"],
+    applicationName: "Fall Craft Fair",
+    paymentStatus: "Paid",
+    status: "Approved",
+    submitted: "2026-01-09",
   },
 ];
 
 let filteredApplications = [...applications];
+let selectedRowIds = [];
+let sortDirection = "asc";
+let isLoading = true;
 
 /* -----------------------------
    Helpers
@@ -87,6 +130,15 @@ function formatDate(dateString) {
   });
 }
 
+function getInitials(name) {
+  return name
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 function updateClearButton() {
   const hasText = $("#searchInput").val().trim().length > 0;
   $("#clearSearch").toggleClass("hidden", !hasText);
@@ -95,6 +147,36 @@ function updateClearButton() {
 function isMobileFilters() {
   return window.innerWidth <= 480;
 }
+
+function getStatusClass(status) {
+  switch (status) {
+    case "Approved":
+      return "status-approved";
+    case "Waitlisted":
+      return "status-waitlisted";
+    case "Rejected":
+      return "status-rejected";
+    default:
+      return "status-awaiting";
+  }
+}
+
+function sortApplications(data) {
+  return [...data].sort((a, b) => {
+    const nameA = a.vendor.toLowerCase();
+    const nameB = b.vendor.toLowerCase();
+
+    if (sortDirection === "asc") {
+      return nameA.localeCompare(nameB);
+    }
+
+    return nameB.localeCompare(nameA);
+  });
+}
+
+/* -----------------------------
+   Filter panel helpers
+----------------------------- */
 
 function closeFilterPanel(returnFocus = true) {
   $("#filterPanel").addClass("hidden");
@@ -134,13 +216,47 @@ function openFilterPanel() {
 }
 
 /* -----------------------------
+   Bulk action / loading helpers
+----------------------------- */
+
+function renderBulkActionBar() {
+  const count = selectedRowIds.length;
+
+  $("#selectedCount").text(`${count} selected`);
+  $("#bulkActionBar").toggleClass("hidden", count === 0);
+
+  const allVisibleIds = filteredApplications.map((app) => app.id);
+  const allVisibleSelected =
+    allVisibleIds.length > 0 &&
+    allVisibleIds.every((id) => selectedRowIds.includes(id));
+
+  $("#selectAllRows").prop("checked", allVisibleSelected);
+}
+
+function renderLoadingState() {
+  $("#tableLoadingState").removeClass("hidden");
+  $(".desktop-table").addClass("hidden");
+  $("#mobileCards").addClass("hidden");
+  $(".pagination").addClass("hidden");
+}
+
+function hideLoadingState() {
+  $("#tableLoadingState").addClass("hidden");
+  $(".desktop-table").removeClass("hidden");
+  $(".pagination").removeClass("hidden");
+  $("#mobileCards").removeClass("hidden");
+}
+
+/* -----------------------------
    Rendering
 ----------------------------- */
 
 function renderEmptyState() {
+  hideLoadingState();
+
   $("#applicationTableBody").html(`
     <tr>
-      <td colspan="6">
+      <td colspan="8">
         <div class="empty-state">
           <strong>No applications found</strong>
           <p class="muted-text">Try adjusting your search or filters.</p>
@@ -157,31 +273,85 @@ function renderEmptyState() {
   `);
 
   $("#resultsCount").text("0 results");
+  renderBulkActionBar();
 }
 
 function renderTable(data) {
+  if (isLoading) {
+    renderLoadingState();
+    return;
+  }
+
+  hideLoadingState();
+
   if (data.length === 0) {
     renderEmptyState();
     return;
   }
 
-  const rows = data
+  const sortedData = sortApplications(data);
+
+  const rows = sortedData
     .map(
       (app) => `
       <tr>
-        <td>
-          <strong>${app.vendor}</strong><br />
-          <span class="muted-text">${app.email}</span>
+        <td class="checkbox-col">
+          <input
+            type="checkbox"
+            class="row-checkbox"
+            data-id="${app.id}"
+            aria-label="Select ${app.vendor}"
+            ${selectedRowIds.includes(app.id) ? "checked" : ""}
+          />
         </td>
-        <td>${app.event}</td>
-        <td>${app.category}</td>
-        <td><span class="badge ${app.status}">${app.status}</span></td>
-        <td>${formatDate(app.submitted)}</td>
+
         <td>
-          <div class="row-actions">
-            <button class="action-btn view-btn" data-id="${app.id}">View</button>
-            <button class="action-btn approve-btn" data-id="${app.id}">Approve</button>
+          <div class="business-cell">
+            <div class="business-avatar">${getInitials(app.vendor)}</div>
+            <div>
+              <div class="linkish-text">${app.vendor}</div>
+              <div class="secondary-text">${app.applicantName}</div>
+            </div>
           </div>
+        </td>
+
+        <td>
+          <div class="tag-list">
+            ${app.tags
+              .map((tag) => `<span class="tag-pill">${tag}</span>`)
+              .join("")}
+          </div>
+        </td>
+
+        <td>
+          <span class="linkish-text">${app.applicationName}</span>
+        </td>
+
+        <td>${app.paymentStatus}</td>
+
+        <td>
+          <select
+            class="status-select ${getStatusClass(app.status)}"
+            data-id="${app.id}"
+            aria-label="Update status for ${app.vendor}"
+          >
+            <option value="Awaiting decision" ${app.status === "Awaiting decision" ? "selected" : ""}>Awaiting decision</option>
+            <option value="Approved" ${app.status === "Approved" ? "selected" : ""}>Approved</option>
+            <option value="Waitlisted" ${app.status === "Waitlisted" ? "selected" : ""}>Waitlisted</option>
+            <option value="Rejected" ${app.status === "Rejected" ? "selected" : ""}>Rejected</option>
+          </select>
+        </td>
+
+        <td>${formatDate(app.submitted)}</td>
+
+        <td>
+          <button
+            class="menu-btn view-btn"
+            data-id="${app.id}"
+            aria-label="View actions for ${app.vendor}"
+          >
+            •••
+          </button>
         </td>
       </tr>
     `,
@@ -190,20 +360,30 @@ function renderTable(data) {
 
   $("#applicationTableBody").html(rows);
 
-  const mobileCards = data
+  const mobileCards = sortedData
     .map(
       (app) => `
       <article class="mobile-card">
-        <h3>${app.vendor}</h3>
-        <p class="mobile-meta">${app.email}</p>
-        <p class="mobile-meta"><strong>Event:</strong> ${app.event}</p>
-        <p class="mobile-meta"><strong>Category:</strong> ${app.category}</p>
-        <p class="mobile-meta"><strong>Status:</strong> <span class="badge ${app.status}">${app.status}</span></p>
+        <div class="mobile-card-top">
+          <input
+            type="checkbox"
+            class="row-checkbox"
+            data-id="${app.id}"
+            aria-label="Select ${app.vendor}"
+            ${selectedRowIds.includes(app.id) ? "checked" : ""}
+          />
+          <h3>${app.vendor}</h3>
+        </div>
+        <p class="mobile-meta">${app.applicantName}</p>
+        <p class="mobile-meta"><strong>Application:</strong> ${app.applicationName}</p>
         <p class="mobile-meta"><strong>Payment:</strong> ${app.paymentStatus}</p>
-        <p class="mobile-meta"><strong>Submitted:</strong> ${formatDate(app.submitted)}</p>
+        <p class="mobile-meta"><strong>Status:</strong> ${app.status}</p>
+        <p class="mobile-meta"><strong>Date:</strong> ${formatDate(app.submitted)}</p>
+        <div class="tag-list mobile-tag-list">
+          ${app.tags.map((tag) => `<span class="tag-pill">${tag}</span>`).join("")}
+        </div>
         <div class="row-actions">
           <button class="action-btn view-btn" data-id="${app.id}">View</button>
-          <button class="action-btn approve-btn" data-id="${app.id}">Approve</button>
         </div>
       </article>
     `,
@@ -212,8 +392,9 @@ function renderTable(data) {
 
   $("#mobileCards").html(mobileCards);
   $("#resultsCount").text(
-    `${data.length} result${data.length === 1 ? "" : "s"}`,
+    `${sortedData.length} result${sortedData.length === 1 ? "" : "s"}`,
   );
+  renderBulkActionBar();
 }
 
 /* -----------------------------
@@ -239,9 +420,9 @@ function applyFilters() {
   filteredApplications = applications.filter((app) => {
     const matchesSearch =
       app.vendor.toLowerCase().includes(searchValue) ||
-      app.email.toLowerCase().includes(searchValue) ||
-      app.event.toLowerCase().includes(searchValue) ||
-      app.category.toLowerCase().includes(searchValue);
+      app.applicantName.toLowerCase().includes(searchValue) ||
+      app.applicationName.toLowerCase().includes(searchValue) ||
+      app.tags.some((tag) => tag.toLowerCase().includes(searchValue));
 
     const matchesStatus =
       selectedStatuses.length === 0 || selectedStatuses.includes(app.status);
@@ -253,9 +434,9 @@ function applyFilters() {
     let matchesApplicationType = true;
 
     if (applicationType === "reviewed") {
-      matchesApplicationType = app.status !== "Awaiting";
+      matchesApplicationType = app.status !== "Awaiting decision";
     } else if (applicationType === "submitted") {
-      matchesApplicationType = app.status === "Awaiting";
+      matchesApplicationType = app.status === "Awaiting decision";
     }
 
     return (
@@ -265,6 +446,10 @@ function applyFilters() {
       matchesApplicationType
     );
   });
+
+  selectedRowIds = selectedRowIds.filter((id) =>
+    filteredApplications.some((app) => app.id === id),
+  );
 
   renderTable(filteredApplications);
 }
@@ -282,14 +467,14 @@ function openModal(appId) {
   if (!app) return;
 
   $("#modalBody").html(`
-    <p><strong>Vendor:</strong> ${app.vendor}</p>
-    <p><strong>Email:</strong> ${app.email}</p>
-    <p><strong>Event:</strong> ${app.event}</p>
-    <p><strong>Category:</strong> ${app.category}</p>
-    <p><strong>Status:</strong> ${app.status}</p>
+    <p><strong>Business:</strong> ${app.vendor}</p>
+    <p><strong>Applicant:</strong> ${app.applicantName}</p>
+    <p><strong>Application:</strong> ${app.applicationName}</p>
+    <p><strong>Tags:</strong> ${app.tags.join(", ")}</p>
     <p><strong>Payment status:</strong> ${app.paymentStatus}</p>
+    <p><strong>Status:</strong> ${app.status}</p>
     <p><strong>Submitted:</strong> ${formatDate(app.submitted)}</p>
-    <p class="muted-text">This quick-view panel helps organizers review details without losing table context.</p>
+    <p class="muted-text">This quick-view panel helps organizers review details without leaving the table.</p>
   `);
 
   $("#detailsModal").removeClass("hidden");
@@ -308,13 +493,16 @@ $(document).ready(function () {
   renderTable(filteredApplications);
   updateClearButton();
 
-  // Search input: update clear button + debounce filtering
+  setTimeout(() => {
+    isLoading = false;
+    renderTable(filteredApplications);
+  }, 700);
+
   $("#searchInput").on("input", function () {
     updateClearButton();
     debouncedApplyFilters();
   });
 
-  // Clear search input
   $("#clearSearch").on("click", function () {
     $("#searchInput").val("");
     updateClearButton();
@@ -322,7 +510,6 @@ $(document).ready(function () {
     $("#searchInput").focus();
   });
 
-  // Filter toggle
   $("#filterToggle").on("click", function () {
     const isExpanded = $(this).attr("aria-expanded") === "true";
 
@@ -333,12 +520,10 @@ $(document).ready(function () {
     }
   });
 
-  // Mobile close button
   $("#closeFilterPanel").on("click", function () {
     closeFilterPanel();
   });
 
-  // Auto-apply filters
   $("#applicationType").on("change", function () {
     applyFilters();
   });
@@ -347,7 +532,13 @@ $(document).ready(function () {
     applyFilters();
   });
 
-  // Click outside filter panel to dismiss
+  $("#clearFilters").on("click", function () {
+    $("#applicationType").val("");
+    $(".status-checkbox").prop("checked", false);
+    $(".payment-checkbox").prop("checked", false);
+    applyFilters();
+  });
+
   $(document).on("mousedown", function (event) {
     const panelIsOpen = !$("#filterPanel").hasClass("hidden");
     const clickedInsidePanel =
@@ -359,7 +550,6 @@ $(document).ready(function () {
     }
   });
 
-  // Keyboard support inside filter panel
   $("#filterPanel").on("keydown", function (event) {
     if (event.key === "Escape") {
       closeFilterPanel();
@@ -386,33 +576,75 @@ $(document).ready(function () {
     }
   });
 
-  // Modal open
+  $("#sortBusinessBtn").on("click", function () {
+    sortDirection = sortDirection === "asc" ? "desc" : "asc";
+    renderTable(filteredApplications);
+  });
+
+  $(document).on("change", ".row-checkbox", function () {
+    const id = Number($(this).data("id"));
+
+    if ($(this).is(":checked")) {
+      if (!selectedRowIds.includes(id)) {
+        selectedRowIds.push(id);
+      }
+    } else {
+      selectedRowIds = selectedRowIds.filter((rowId) => rowId !== id);
+    }
+
+    renderBulkActionBar();
+  });
+
+  $("#selectAllRows").on("change", function () {
+    const visibleIds = filteredApplications.map((app) => app.id);
+
+    if ($(this).is(":checked")) {
+      selectedRowIds = [...new Set([...selectedRowIds, ...visibleIds])];
+    } else {
+      selectedRowIds = selectedRowIds.filter((id) => !visibleIds.includes(id));
+    }
+
+    renderTable(filteredApplications);
+  });
+
+  $("#bulkClearBtn").on("click", function () {
+    selectedRowIds = [];
+    renderTable(filteredApplications);
+  });
+
+  $("#bulkApproveBtn").on("click", function () {
+    applications.forEach((app) => {
+      if (selectedRowIds.includes(app.id)) {
+        app.status = "Approved";
+      }
+    });
+
+    applyFilters();
+  });
+
   $(document).on("click", ".view-btn", function () {
     openModal($(this).data("id"));
   });
 
-  // Approve button
-  $(document).on("click", ".approve-btn", function () {
+  $(document).on("change", ".status-select", function () {
     const id = Number($(this).data("id"));
-    const item = applications.find((app) => app.id === id);
+    const newStatus = $(this).val();
 
+    const item = applications.find((app) => app.id === id);
     if (item) {
-      item.status = "Approved";
+      item.status = newStatus;
       applyFilters();
     }
   });
 
-  // Close modal button
   $("#closeModal").on("click", closeModal);
 
-  // Close modal by clicking overlay
   $("#detailsModal").on("click", function (event) {
     if (event.target.id === "detailsModal") {
       closeModal();
     }
   });
 
-  // Global Escape handling
   $(document).on("keydown", function (event) {
     if (event.key === "Escape") {
       closeModal();
@@ -423,7 +655,6 @@ $(document).ready(function () {
     }
   });
 
-  // Reset body overflow if window is resized while filters are open
   $(window).on("resize", function () {
     if ($("#filterPanel").hasClass("hidden")) {
       $("body").css("overflow", "");

@@ -4,23 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vendor Application Management</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link rel="stylesheet" href="styles.css" />
 
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="styles.css" />
-    <script
-      src="https://code.jquery.com/jquery-3.7.1.min.js"
-      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   </head>
+
   <body>
-    <main class="page">
+    <div class="page">
       <header class="page-header">
         <div>
           <p class="eyebrow">Event Management</p>
@@ -31,20 +27,20 @@
         </div>
       </header>
 
-      <section class="toolbar" aria-label="Vendor application controls">
+      <!-- TOOLBAR -->
+
+      <section class="toolbar">
         <div class="search-group">
-          <label for="searchInput" class="sr-only"
-            >Search vendor applications</label
-          >
+          <label for="searchInput" class="sr-only">Search vendors</label>
 
           <div class="search-input-wrapper">
-            <span class="search-icon" aria-hidden="true">🔍</span>
+            <span class="search-icon">🔍</span>
 
             <input
               id="searchInput"
               type="text"
-              placeholder="Search by business, name, tag, etc"
-              autocomplete="off"
+              placeholder="Search vendors, applicants, tags..."
+              aria-label="Search vendor applications"
             />
 
             <button
@@ -53,7 +49,7 @@
               type="button"
               aria-label="Clear search"
             >
-              ×
+              ✕
             </button>
           </div>
         </div>
@@ -81,156 +77,177 @@
             class="filter-panel hidden"
             role="dialog"
             aria-modal="false"
-            aria-label="Advanced filters"
           >
-            <div class="filter-panel-inner" tabindex="-1">
-              <div class="mobile-filter-header">
-                <h2 class="mobile-filter-title">Filters</h2>
-                <button
-                  id="closeFilterPanel"
-                  type="button"
-                  class="icon-btn"
-                  aria-label="Close filters"
-                >
-                  ×
-                </button>
+            <div class="filter-panel-inner">
+              <select id="applicationType" class="filter-select">
+                <option value="">All applications</option>
+                <option value="reviewed">Reviewed applications</option>
+                <option value="submitted">Submitted applications</option>
+              </select>
+
+              <p>Status</p>
+
+              <div class="checkbox-grid">
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    class="status-checkbox"
+                    value="Awaiting decision"
+                  />
+                  Awaiting decision
+                </label>
+
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    class="status-checkbox"
+                    value="Approved"
+                  />
+                  Approved
+                </label>
+
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    class="status-checkbox"
+                    value="Waitlisted"
+                  />
+                  Waitlisted
+                </label>
+
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    class="status-checkbox"
+                    value="Rejected"
+                  />
+                  Rejected
+                </label>
               </div>
 
-              <div class="filter-field">
-                <label for="applicationType" class="sr-only"
-                  >Application type</label
-                >
-                <select id="applicationType" class="filter-select">
-                  <option value="">All applications</option>
-                  <option value="reviewed">Reviewed applications</option>
-                  <option value="submitted">Submitted applications</option>
-                </select>
-              </div>
+              <p>Payment Status</p>
 
-              <div class="filter-group">
-                <p class="filter-group-title">Status</p>
+              <div class="checkbox-grid">
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    class="payment-checkbox"
+                    value="Paid"
+                  />
+                  Paid
+                </label>
 
-                <div class="checkbox-grid">
-                  <label class="checkbox-item">
-                    <input
-                      type="checkbox"
-                      class="status-checkbox"
-                      value="Approved"
-                    />
-                    <span>Approved</span>
-                  </label>
-
-                  <label class="checkbox-item">
-                    <input
-                      type="checkbox"
-                      class="status-checkbox"
-                      value="Awaiting"
-                    />
-                    <span>Awaiting</span>
-                  </label>
-
-                  <label class="checkbox-item">
-                    <input
-                      type="checkbox"
-                      class="status-checkbox"
-                      value="Waitlisted"
-                    />
-                    <span>Waitlisted</span>
-                  </label>
-
-                  <label class="checkbox-item">
-                    <input
-                      type="checkbox"
-                      class="status-checkbox"
-                      value="Rejected"
-                    />
-                    <span>Rejected</span>
-                  </label>
-
-                  <label class="checkbox-item">
-                    <input
-                      type="checkbox"
-                      class="status-checkbox"
-                      value="Withdrawn"
-                    />
-                    <span>Withdrawn</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="filter-group">
-                <p class="filter-group-title">Payment status</p>
-
-                <div class="checkbox-grid">
-                  <label class="checkbox-item">
-                    <input
-                      type="checkbox"
-                      class="payment-checkbox"
-                      value="Paid"
-                    />
-                    <span>Paid</span>
-                  </label>
-
-                  <label class="checkbox-item">
-                    <input
-                      type="checkbox"
-                      class="payment-checkbox"
-                      value="Not paid"
-                    />
-                    <span>Not paid</span>
-                  </label>
-                </div>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    class="payment-checkbox"
+                    value="Not Paid"
+                  />
+                  Not Paid
+                </label>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="table-card" aria-label="Vendor applications table">
+      <!-- TABLE CARD -->
+
+      <section class="table-card">
         <div class="table-header">
           <h2>Applications</h2>
+
           <p id="resultsCount" class="muted-text"></p>
         </div>
+
+        <!-- BULK ACTION BAR -->
+
+        <div id="bulkActionBar" class="bulk-action-bar hidden">
+          <div class="bulk-action-left">
+            <span id="selectedCount">0 selected</span>
+          </div>
+
+          <div class="bulk-action-right">
+            <button id="bulkApproveBtn" class="secondary-btn">Approve</button>
+
+            <button id="bulkClearBtn" class="text-btn">Clear selection</button>
+          </div>
+        </div>
+
+        <!-- LOADING STATE -->
+
+        <div id="tableLoadingState" class="table-loading hidden">
+          Loading applications...
+        </div>
+
+        <!-- TABLE -->
 
         <div class="table-wrapper desktop-table">
           <table>
             <thead>
               <tr>
-                <th>Vendor</th>
-                <th>Event</th>
-                <th>Category</th>
+                <th class="checkbox-col">
+                  <input
+                    id="selectAllRows"
+                    type="checkbox"
+                    aria-label="Select all"
+                  />
+                </th>
+
+                <th>
+                  <button
+                    id="sortBusinessBtn"
+                    class="sort-button"
+                    type="button"
+                  >
+                    Business name ↑↓
+                  </button>
+                </th>
+
+                <th>Tag</th>
+                <th>Application</th>
+                <th>Payment</th>
                 <th>Status</th>
-                <th>Submitted</th>
-                <th>Actions</th>
+                <th>Date</th>
+                <th>Action</th>
               </tr>
             </thead>
+
             <tbody id="applicationTableBody"></tbody>
           </table>
         </div>
 
-        <div id="mobileCards" class="mobile-cards"></div>
-      </section>
-    </main>
+        <!-- MOBILE CARDS -->
 
-    <div
-      id="detailsModal"
-      class="modal hidden"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modalTitle"
-    >
+        <div id="mobileCards" class="mobile-cards"></div>
+
+        <!-- PAGINATION -->
+
+        <div class="pagination">
+          <button class="page-arrow">‹</button>
+
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn">5</button>
+
+          <button class="page-arrow">›</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- MODAL -->
+
+    <div id="detailsModal" class="modal hidden">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 id="modalTitle">Vendor Details</h2>
-          <button
-            id="closeModal"
-            class="icon-btn"
-            aria-label="Close details panel"
-          >
-            ×
-          </button>
+          <h3>Application Details</h3>
+
+          <button id="closeModal">✕</button>
         </div>
-        <div id="modalBody" class="modal-body"></div>
+
+        <div id="modalBody"></div>
       </div>
     </div>
 
