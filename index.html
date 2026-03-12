@@ -12,6 +12,7 @@
       rel="stylesheet"
     />
 
+    <script src="scripts/data/applications.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   </head>
 
@@ -39,7 +40,7 @@
             <input
               id="searchInput"
               type="text"
-              placeholder="Search vendors, applicants, tags..."
+              placeholder="Search by business, name, tag, etc"
               aria-label="Search vendor applications"
             />
 
@@ -235,20 +236,6 @@
           <button class="page-arrow">›</button>
         </div>
       </section>
-    </div>
-
-    <!-- MODAL -->
-
-    <div id="detailsModal" class="modal hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Application Details</h3>
-
-          <button id="closeModal">✕</button>
-        </div>
-
-        <div id="modalBody"></div>
-      </div>
     </div>
 
     <script src="app.js"></script>

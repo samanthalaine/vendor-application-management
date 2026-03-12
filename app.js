@@ -1,105 +1,3 @@
-const applications = [
-  {
-    id: 1,
-    vendor: "Oak & Honey Bakery",
-    applicantName: "Emma Sullivan",
-    tags: ["Food Vendor", "Bakery", "Local"],
-    applicationName: "Spring Artisan Market",
-    paymentStatus: "Paid",
-    status: "Awaiting decision",
-    submitted: "2026-01-18",
-  },
-  {
-    id: 2,
-    vendor: "Blue Fern Pottery",
-    applicantName: "Marcus Delgado",
-    tags: ["Handmade", "Ceramics", "Artisan"],
-    applicationName: "Downtown Makers Festival",
-    paymentStatus: "Paid",
-    status: "Approved",
-    submitted: "2026-01-17",
-  },
-  {
-    id: 3,
-    vendor: "Evergreen Candle Co.",
-    applicantName: "Sophia Chen",
-    tags: ["Home Goods", "Handmade", "Eco-Friendly"],
-    applicationName: "Holiday Gift Expo",
-    paymentStatus: "Paid",
-    status: "Waitlisted",
-    submitted: "2026-01-16",
-  },
-  {
-    id: 4,
-    vendor: "North Market Coffee",
-    applicantName: "Daniel Carter",
-    tags: ["Food Vendor", "Coffee", "Local"],
-    applicationName: "Spring Artisan Market",
-    paymentStatus: "Paid",
-    status: "Approved",
-    submitted: "2026-01-15",
-  },
-  {
-    id: 5,
-    vendor: "Golden Meadow Soapworks",
-    applicantName: "Hannah Brooks",
-    tags: ["Bath & Body", "Handmade", "Organic"],
-    applicationName: "Downtown Makers Festival",
-    paymentStatus: "Not Paid",
-    status: "Rejected",
-    submitted: "2026-01-14",
-  },
-  {
-    id: 6,
-    vendor: "Riverbend Leather",
-    applicantName: "Lucas Ramirez",
-    tags: ["Leather Goods", "Handcrafted", "Accessories"],
-    applicationName: "Fall Craft Fair",
-    paymentStatus: "Paid",
-    status: "Awaiting decision",
-    submitted: "2026-01-13",
-  },
-  {
-    id: 7,
-    vendor: "Bloom & Branch Floral",
-    applicantName: "Isabella Torres",
-    tags: ["Florals", "Decor", "Local"],
-    applicationName: "Spring Garden Festival",
-    paymentStatus: "Paid",
-    status: "Approved",
-    submitted: "2026-01-12",
-  },
-  {
-    id: 8,
-    vendor: "Copper Kettle Caramels",
-    applicantName: "Nathan Gallagher",
-    tags: ["Food Vendor", "Sweets", "Small Batch"],
-    applicationName: "Holiday Gift Expo",
-    paymentStatus: "Not Paid",
-    status: "Awaiting decision",
-    submitted: "2026-01-11",
-  },
-  {
-    id: 9,
-    vendor: "Willow Lane Textiles",
-    applicantName: "Olivia Patel",
-    tags: ["Textiles", "Handmade", "Sustainable"],
-    applicationName: "Downtown Makers Festival",
-    paymentStatus: "Paid",
-    status: "Waitlisted",
-    submitted: "2026-01-10",
-  },
-  {
-    id: 10,
-    vendor: "Maple Street Woodworks",
-    applicantName: "Ethan Walker",
-    tags: ["Woodworking", "Furniture", "Handcrafted"],
-    applicationName: "Fall Craft Fair",
-    paymentStatus: "Paid",
-    status: "Approved",
-    submitted: "2026-01-09",
-  },
-];
 
 let filteredApplications = [...applications];
 let selectedRowIds = [];
@@ -459,33 +357,6 @@ const debouncedApplyFilters = debounce(function () {
 }, 250);
 
 /* -----------------------------
-   Modal
------------------------------ */
-
-function openModal(appId) {
-  const app = applications.find((item) => item.id === Number(appId));
-  if (!app) return;
-
-  $("#modalBody").html(`
-    <p><strong>Business:</strong> ${app.vendor}</p>
-    <p><strong>Applicant:</strong> ${app.applicantName}</p>
-    <p><strong>Application:</strong> ${app.applicationName}</p>
-    <p><strong>Tags:</strong> ${app.tags.join(", ")}</p>
-    <p><strong>Payment status:</strong> ${app.paymentStatus}</p>
-    <p><strong>Status:</strong> ${app.status}</p>
-    <p><strong>Submitted:</strong> ${formatDate(app.submitted)}</p>
-    <p class="muted-text">This quick-view panel helps organizers review details without leaving the table.</p>
-  `);
-
-  $("#detailsModal").removeClass("hidden");
-  $("#closeModal").focus();
-}
-
-function closeModal() {
-  $("#detailsModal").addClass("hidden");
-}
-
-/* -----------------------------
    Event bindings
 ----------------------------- */
 
@@ -638,12 +509,6 @@ $(document).ready(function () {
   });
 
   $("#closeModal").on("click", closeModal);
-
-  $("#detailsModal").on("click", function (event) {
-    if (event.target.id === "detailsModal") {
-      closeModal();
-    }
-  });
 
   $(document).on("keydown", function (event) {
     if (event.key === "Escape") {

@@ -374,7 +374,6 @@ h2 {
   }
 }
 
-
 /* -------------------------
    Buttons
 ------------------------- */
@@ -591,7 +590,6 @@ th {
   border-radius: 4px;
 }
 
-
 /* -------------------------
    Pagination
 ------------------------- */
@@ -636,32 +634,6 @@ th {
 .mobile-meta {
   font-size: 14px;
   color: var(--muted);
-}
-
-/* -------------------------
-   Modal
-------------------------- */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  width: 100%;
-  max-width: 520px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
 }
 
 /* -------------------------
