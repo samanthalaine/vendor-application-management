@@ -135,7 +135,7 @@ function renderTable({
           </button>
         </td>
       </tr>
-    `
+    `,
     )
     .join("");
 
@@ -168,14 +168,14 @@ function renderTable({
             .join("")}
         </div>
       </article>
-    `
+    `,
     )
     .join("");
 
   $("#mobileCards").html(mobileCards);
 
   $("#resultsCount").text(
-    `${sortedData.length} result${sortedData.length === 1 ? "" : "s"}`
+    `${sortedData.length} result${sortedData.length === 1 ? "" : "s"}`,
   );
 
   renderBulkActionBar(selectedRowIds, filteredApplications);

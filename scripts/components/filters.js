@@ -4,9 +4,7 @@ function isMobileFilters() {
 
 function closeFilterPanel(returnFocus = true) {
   $("#filterPanel").addClass("hidden");
-  $("#filterToggle")
-    .attr("aria-expanded", "false")
-    .removeClass("is-open");
+  $("#filterToggle").attr("aria-expanded", "false").removeClass("is-open");
   $("#filterChevron").text("⌄");
 
   if (isMobileFilters()) {
@@ -21,9 +19,7 @@ function closeFilterPanel(returnFocus = true) {
 
 function openFilterPanel() {
   $("#filterPanel").removeClass("hidden");
-  $("#filterToggle")
-    .attr("aria-expanded", "true")
-    .addClass("is-open");
+  $("#filterToggle").attr("aria-expanded", "true").addClass("is-open");
   $("#filterChevron").text("⌃");
 
   if (isMobileFilters()) {
@@ -101,7 +97,8 @@ function initFilters(onFilterChange) {
 
   $(document).on("mousedown", function (event) {
     const panelIsOpen = !$("#filterPanel").hasClass("hidden");
-    const clickedInsidePanel = $(event.target).closest("#filterPanel").length > 0;
+    const clickedInsidePanel =
+      $(event.target).closest("#filterPanel").length > 0;
     const clickedToggle = $(event.target).closest("#filterToggle").length > 0;
 
     if (panelIsOpen && !clickedInsidePanel && !clickedToggle) {

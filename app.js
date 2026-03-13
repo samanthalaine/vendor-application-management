@@ -92,9 +92,7 @@ $(document).ready(function () {
     if ($(this).is(":checked")) {
       selectedRowIds = [...new Set([...selectedRowIds, ...visibleIds])];
     } else {
-      selectedRowIds = selectedRowIds.filter(
-        (id) => !visibleIds.includes(id),
-      );
+      selectedRowIds = selectedRowIds.filter((id) => !visibleIds.includes(id));
     }
 
     renderCurrentTable();
